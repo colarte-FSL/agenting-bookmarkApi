@@ -30,6 +30,15 @@ export function findAllBookmarks(tag?: string): BookmarkRow[] {
   return db.all('SELECT * FROM bookmarks') as unknown as BookmarkRow[];
 }
 
+export function findBookmarkById(id: number): BookmarkRow | null {
+  const db = getDb();
+  const row = db.all(
+    'SELECT * FROM bookmarks WHERE id = :id',
+    { ':id': id }
+  );
+  return row.length > 0 ? (row[0] as unknown as BookmarkRow) : null;
+}
+
 export function insertBookmark(data: CreateBookmarkData): BookmarkRow {
   const db = getDb();
   const tags = data.tags && data.tags.length > 0 ? data.tags.join(',') : null;
