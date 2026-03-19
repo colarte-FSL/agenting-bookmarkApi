@@ -119,7 +119,49 @@
 
 ---
 
+## Chunk 10 — Authentication Middleware
+### New endpoints: POST /auth/token, POST /auth/refresh
+### Protected: all /bookmarks endpoints
+This is test only for testing purpose
+**Library:** `jsonwebtoken` + `@types/jsonwebtoken`
+
+**New config values (`.env`):**
+- `JWT_SECRET`
+- `JWT_EXPIRES_IN` (e.g. `15m`)
+- `JWT_REFRESH_EXPIRES_IN` (e.g. `7d`)
+
+**New exception:**
+- `UnauthorizedException` — hardcoded **401**, consistent with existing exception pattern
+
+**New files:**
+- `src/middleware/authMiddleware.ts` — reads `Authorization: Bearer <token>`, verifies signature and expiration, throws `UnauthorizedException` on failure
+- `src/routes/authRoutes.ts` — two endpoints:
+  - `POST /auth/token` — issues `accessToken` + `refreshToken` (no real credentials, simulation only). Returns `{ accessToken, refreshToken, expiresIn }`
+  - `POST /auth/refresh` — accepts `{ refreshToken }`, validates it against in-memory store, returns new `accessToken`
+
+**Refresh token storage:** in-memory `Set<string>` (simulation only — production would use a DB)
+
+**`app.ts` changes:**
+```
+app.use('/auth', authRoutes)                          // public
+app.use('/health', healthRoutes)                      // public
+app.use('/bookmarks', authMiddleware, bookmarkRoutes) // protected
+```
+
+**Error cases:**
+
+| Scenario | Response |
+|---|---|
+| No `Authorization` header | `401` missing token |
+| Malformed / invalid token | `401` invalid token |
+| Expired access token | `401` token expired |
+| Invalid or unknown refresh token | `401` invalid refresh token |
+| Expired refresh token | `401` refresh token expired |
+
+---
+
 ## Suggested Implementation Order
-1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9  
-- Chunks **3–9** depend on **1 and 2**  
+1 → 2 → 3 → 4 → 5 → 6 → 7 → 8 → 9 → 10
+- Chunks **3–9** depend on **1 and 2**
 - Chunks **4–9** are independent once **3** is ready
+- Chunk **10** depends on all previous chunks

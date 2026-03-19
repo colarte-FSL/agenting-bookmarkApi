@@ -1,13 +1,14 @@
 import { Request, Response, NextFunction } from 'express';
-import { BadRequestException, BookmarkException, BookmarkNotFoundException } from './exceptions';
+import { BadRequestException, BookmarkException, BookmarkNotFoundException, UnauthorizedException } from './exceptions';
 
-type KnownException = BadRequestException | BookmarkNotFoundException | BookmarkException;
+type KnownException = BadRequestException | BookmarkNotFoundException | BookmarkException | UnauthorizedException;
 
 function isKnownException(err: unknown): err is KnownException {
   return (
     err instanceof BadRequestException ||
     err instanceof BookmarkNotFoundException ||
-    err instanceof BookmarkException
+    err instanceof BookmarkException ||
+    err instanceof UnauthorizedException
   );
 }
 

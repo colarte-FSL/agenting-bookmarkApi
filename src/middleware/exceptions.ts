@@ -22,6 +22,18 @@ export class BookmarkNotFoundException extends Error {
   }
 }
 
+export class UnauthorizedException extends Error {
+  readonly httpStatus = 401;
+  readonly errors: string[];
+
+  constructor(errors: string | string[]) {
+    const errArray = Array.isArray(errors) ? errors : [errors];
+    super(errArray[0]);
+    this.errors = errArray;
+    this.name = 'UnauthorizedException';
+  }
+}
+
 export class BookmarkException extends Error {
   readonly httpStatus: number;
   readonly errors: string[];

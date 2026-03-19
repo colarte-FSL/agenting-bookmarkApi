@@ -4,12 +4,72 @@
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
-    {
-      "key": "baseUrl",
-      "value": "http://localhost:3000"
-    }
+    { "key": "baseUrl", "value": "http://localhost:4000" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" }
   ],
   "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /auth/token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "pm.collectionVariables.set('accessToken', json.accessToken);",
+                  "pm.collectionVariables.set('refreshToken', json.refreshToken);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/token"
+          }
+        },
+        {
+          "name": "POST /auth/refresh",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.accessToken) {",
+                  "  pm.collectionVariables.set('accessToken', json.accessToken);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/refresh",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"
+            }
+          }
+        },
+        {
+          "name": "POST /auth/refresh — invalid token",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/auth/refresh",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"bad.token.here\"\n}"
+            }
+          }
+        }
+      ]
+    },
     {
       "name": "Health",
       "item": [
@@ -30,7 +90,10 @@
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/bookmarks",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"title\": \"TypeScript Docs\",\n  \"url\": \"https://www.typescriptlang.org\",\n  \"description\": \"Official TypeScript documentation\",\n  \"tags\": [\"typescript\", \"docs\"]\n}"
@@ -42,7 +105,10 @@
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/bookmarks",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"url\": \"https://www.typescriptlang.org\"\n}"
@@ -54,7 +120,10 @@
           "request": {
             "method": "POST",
             "url": "{{baseUrl}}/bookmarks",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"title\": \"Test\",\n  \"url\": \"not-a-url\"\n}"
@@ -62,10 +131,23 @@
           }
         },
         {
+          "name": "POST /bookmarks — no token",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/bookmarks",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Test\",\n  \"url\": \"https://example.com\"\n}"
+            }
+          }
+        },
+        {
           "name": "GET /bookmarks — list all",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/bookmarks"
+            "url": "{{baseUrl}}/bookmarks",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
           }
         },
         {
@@ -75,28 +157,32 @@
             "url": {
               "raw": "{{baseUrl}}/bookmarks?tag=typescript",
               "query": [{ "key": "tag", "value": "typescript" }]
-            }
+            },
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
           }
         },
         {
           "name": "GET /bookmarks/:id — found",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/bookmarks/1"
+            "url": "{{baseUrl}}/bookmarks/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
           }
         },
         {
           "name": "GET /bookmarks/:id — not found",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/bookmarks/999"
+            "url": "{{baseUrl}}/bookmarks/999",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
           }
         },
         {
           "name": "GET /bookmarks/:id — invalid id",
           "request": {
             "method": "GET",
-            "url": "{{baseUrl}}/bookmarks/abc"
+            "url": "{{baseUrl}}/bookmarks/abc",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
           }
         },
         {
@@ -104,7 +190,10 @@
           "request": {
             "method": "PUT",
             "url": "{{baseUrl}}/bookmarks/1",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"title\": \"Updated Title\",\n  \"url\": \"https://www.typescriptlang.org\",\n  \"description\": \"Updated description\",\n  \"tags\": [\"typescript\", \"updated\"]\n}"
@@ -116,7 +205,10 @@
           "request": {
             "method": "PUT",
             "url": "{{baseUrl}}/bookmarks/999",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"title\": \"Test\",\n  \"url\": \"https://test.com\"\n}"
@@ -128,7 +220,10 @@
           "request": {
             "method": "PUT",
             "url": "{{baseUrl}}/bookmarks/1",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Authorization", "value": "Bearer {{accessToken}}" }
+            ],
             "body": {
               "mode": "raw",
               "raw": "{\n  \"title\": \"\",\n  \"url\": \"bad-url\"\n}"
@@ -139,21 +234,24 @@
           "name": "DELETE /bookmarks/:id — found",
           "request": {
             "method": "DELETE",
-            "url": "{{baseUrl}}/bookmarks/1"
+            "url": "{{baseUrl}}/bookmarks/1",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
           }
         },
         {
           "name": "DELETE /bookmarks/:id — not found",
           "request": {
             "method": "DELETE",
-            "url": "{{baseUrl}}/bookmarks/999"
+            "url": "{{baseUrl}}/bookmarks/999",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
           }
         },
         {
           "name": "DELETE /bookmarks/:id — invalid id",
           "request": {
             "method": "DELETE",
-            "url": "{{baseUrl}}/bookmarks/abc"
+            "url": "{{baseUrl}}/bookmarks/abc",
+            "header": [{ "key": "Authorization", "value": "Bearer {{accessToken}}" }]
           }
         }
       ]
