@@ -8,7 +8,12 @@
       "Bash(timeout 6 npx ts-node src/index.ts)",
       "Bash(npx ts-node -e \":*)",
       "Bash(node -e \":*)",
-      "Bash(npx ts-node:*)"
+      "Bash(npx ts-node:*)",
+      "Bash(node -e \"const e = require\\(''express''\\); console.log\\(e.version\\)\")",
+      "Bash(npx ts-node --transpile-only -e \":*)",
+      "Bash(netstat -ano)",
+      "Bash(taskkill:*)",
+      "Bash(cmd /c \"taskkill /PID 54928 /F\" 2>&1)"
     ]
   }
 }
