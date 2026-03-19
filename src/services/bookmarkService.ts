@@ -1,4 +1,4 @@
-import { insertBookmark, findAllBookmarks, findBookmarkById, BookmarkRow, CreateBookmarkData } from '../repositories/bookmarkRepository';
+import { insertBookmark, findAllBookmarks, findBookmarkById, updateBookmark, BookmarkRow, CreateBookmarkData } from '../repositories/bookmarkRepository';
 import { BookmarkNotFoundException } from '../middleware/exceptions';
 
 export interface Bookmark {
@@ -27,6 +27,12 @@ export function getBookmarkById(id: number): Bookmark {
   const row = findBookmarkById(id);
   if (!row) throw new BookmarkNotFoundException(`Bookmark with id ${id} not found`);
   return toBookmark(row);
+}
+
+export function editBookmark(id: number, data: CreateBookmarkData): Bookmark {
+  const row = findBookmarkById(id);
+  if (!row) throw new BookmarkNotFoundException(`Bookmark with id ${id} not found`);
+  return toBookmark(updateBookmark(id, data));
 }
 
 export function listBookmarks(tag?: string): Bookmark[] {

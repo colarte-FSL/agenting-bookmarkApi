@@ -1,6 +1,6 @@
 import { Router, Request, Response, NextFunction } from 'express';
 import { z } from 'zod';
-import { createBookmark, listBookmarks, getBookmarkById } from '../services/bookmarkService';
+import { createBookmark, listBookmarks, getBookmarkById, editBookmark } from '../services/bookmarkService';
 import { BadRequestException } from '../middleware/exceptions';
 
 const router = Router();
@@ -24,6 +24,22 @@ router.get('/:id', (req: Request, res: Response, next: NextFunction) => {
     return next(new BadRequestException('id must be a positive integer'));
   }
   const bookmark = getBookmarkById(id);
+  res.json(bookmark);
+});
+
+router.put('/:id', (req: Request, res: Response, next: NextFunction) => {
+  const id = Number(req.params['id']);
+  if (!Number.isInteger(id) || id <= 0) {
+    return next(new BadRequestException('id must be a positive integer'));
+  }
+
+  const result = createBookmarkSchema.safeParse(req.body);
+  if (!result.success) {
+    const errors = result.error.issues.map((e) => `${e.path.join('.')}: ${e.message}`);
+    return next(new BadRequestException(errors));
+  }
+
+  const bookmark = editBookmark(id, result.data);
   res.json(bookmark);
 });
 

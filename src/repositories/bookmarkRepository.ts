@@ -39,6 +39,23 @@ export function findBookmarkById(id: number): BookmarkRow | null {
   return row.length > 0 ? (row[0] as unknown as BookmarkRow) : null;
 }
 
+export function updateBookmark(id: number, data: CreateBookmarkData): BookmarkRow {
+  const db = getDb();
+  const tags = data.tags && data.tags.length > 0 ? data.tags.join(',') : null;
+
+  db.run(
+    `UPDATE bookmarks
+     SET title = :title, url = :url, description = :description, tags = :tags, updated_at = datetime('now')
+     WHERE id = :id`,
+    { ':title': data.title, ':url': data.url, ':description': data.description ?? null, ':tags': tags, ':id': id }
+  );
+
+  return db.all(
+    'SELECT * FROM bookmarks WHERE id = :id',
+    { ':id': id }
+  )[0] as unknown as BookmarkRow;
+}
+
 export function insertBookmark(data: CreateBookmarkData): BookmarkRow {
   const db = getDb();
   const tags = data.tags && data.tags.length > 0 ? data.tags.join(',') : null;
