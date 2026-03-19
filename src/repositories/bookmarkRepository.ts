@@ -17,6 +17,19 @@ export interface CreateBookmarkData {
   tags?: string[];
 }
 
+export function findAllBookmarks(tag?: string): BookmarkRow[] {
+  const db = getDb();
+
+  if (tag) {
+    return db.all(
+      `SELECT * FROM bookmarks WHERE (',' || tags || ',') LIKE :tag`,
+      { ':tag': `%,${tag},%` }
+    ) as unknown as BookmarkRow[];
+  }
+
+  return db.all('SELECT * FROM bookmarks') as unknown as BookmarkRow[];
+}
+
 export function insertBookmark(data: CreateBookmarkData): BookmarkRow {
   const db = getDb();
   const tags = data.tags && data.tags.length > 0 ? data.tags.join(',') : null;

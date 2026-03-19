@@ -1,4 +1,4 @@
-import { insertBookmark, BookmarkRow, CreateBookmarkData } from '../repositories/bookmarkRepository';
+import { insertBookmark, findAllBookmarks, BookmarkRow, CreateBookmarkData } from '../repositories/bookmarkRepository';
 
 export interface Bookmark {
   id: number;
@@ -20,6 +20,10 @@ export function toBookmark(row: BookmarkRow): Bookmark {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
+}
+
+export function listBookmarks(tag?: string): Bookmark[] {
+  return findAllBookmarks(tag).map(toBookmark);
 }
 
 export function createBookmark(data: CreateBookmarkData): Bookmark {
