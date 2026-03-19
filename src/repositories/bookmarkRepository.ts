@@ -56,6 +56,11 @@ export function updateBookmark(id: number, data: CreateBookmarkData): BookmarkRo
   )[0] as unknown as BookmarkRow;
 }
 
+export function deleteBookmark(id: number): void {
+  const db = getDb();
+  db.run('DELETE FROM bookmarks WHERE id = :id', { ':id': id });
+}
+
 export function insertBookmark(data: CreateBookmarkData): BookmarkRow {
   const db = getDb();
   const tags = data.tags && data.tags.length > 0 ? data.tags.join(',') : null;
