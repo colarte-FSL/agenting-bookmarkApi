@@ -115,7 +115,7 @@
 ## Chunk 9 — Health Check  
 ### GET /health
 - Single route, no service/repository needed
-- Returns `{ "status": "ok" }` with **200**
+- Returns `{ "db": "ok" }` if db is working  **200**
 
 ---
 
